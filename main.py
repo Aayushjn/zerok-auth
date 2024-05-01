@@ -1,7 +1,7 @@
 from zkg_client import client
 
-username = "karthik"
-password = "pdf"
+username = "aayush"
+password = "securepwd"
 
 client.configure_server("http://127.0.0.1:5000")
 

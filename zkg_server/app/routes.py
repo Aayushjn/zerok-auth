@@ -34,7 +34,7 @@ def login():
     if user is None:
         return {"message": f"{payload['username']} not found"}, 404
 
-    cache.update_cache(payload["username"], payload["h"])
+    cache.update(payload["username"], payload["h"])
 
     return {"b": random.randint(1, 2)}, 200
 
@@ -61,8 +61,10 @@ def verify():
     if remapped_graph == g2:
         if user_cache["round"] == 10:
             status = "success"
+            cache.delete(payload["username"])
         else:
             status = "pending"
         return {"status": status}, 200
     else:
+        cache.delete(payload["username"])
         return {"status": "failure"}, 401
