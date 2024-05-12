@@ -14,8 +14,8 @@ def apply_isomorphic_mapping(g: nx.Graph, mapping: dict[int, int]) -> nx.Graph:
 
 
 def get_isomorphic_mapping(g1: nx.Graph, g2: nx.Graph) -> dict[int, int]:
-    return nx.vf2pp_isomorphism(g1, g2)
+    g1_node_list = list(g1.nodes)
+    g2_node_list = list(g2.nodes)
 
+    return {n1: n2 for n1, n2 in zip(g1_node_list, g2_node_list)}
 
-def is_isomorphic(g1: nx.Graph, g2: nx.Graph) -> bool:
-    return nx.vf2pp_is_isomorphic(g1, g2)
