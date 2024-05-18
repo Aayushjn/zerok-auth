@@ -1,4 +1,3 @@
-from base64 import b85encode
 from hashlib import blake2b
 from hashlib import sha3_512
 
@@ -19,4 +18,4 @@ def hash_and_encode_data(data: bytes | str, hash_algo: str = "sha3_512") -> byte
     if isinstance(data, str):
         data = data.encode()
     hashed = HASHERS[hash_algo](data)
-    return b85encode(hashed)
+    return hashed
