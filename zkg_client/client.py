@@ -49,17 +49,18 @@ def register_user(username: str, password: str) -> tuple[bool, dict[str, Any]]:
 
     return response.ok, response.json()
 
-def register_user_traditional(username: str, password: str) -> tuple[bool, dict[str, Any]]:
+
+def register_user_traditional(
+    username: str, password: str
+) -> tuple[bool, dict[str, Any]]:
     if "url" not in _server_config:
         raise ValueError("Server not configured")
     response = requests.post(
         url=f"{_server_config['url']}/register_traditional",
-        json={
-            "username": username,
-            "password": password
-        }    
+        json={"username": username, "password": password},
     )
     return response.ok, response.json()
+
 
 def login(username: str, password: str) -> tuple[bool, dict[str, Any]]:
     if "url" not in _server_config:
@@ -137,19 +138,19 @@ def login(username: str, password: str) -> tuple[bool, dict[str, Any]]:
 def login_traditional(username: str, password: str) -> tuple[bool, dict[str, Any]]:
     if "url" not in _server_config:
         raise ValueError("Server not configured")
-    
+
     response = requests.post(
-            url=f"{_server_config['url']}/login_traditional",
-            json={
-                "username": username,
-                "password": password,
-            },
-        )
+        url=f"{_server_config['url']}/login_traditional",
+        json={
+            "username": username,
+            "password": password,
+        },
+    )
     if not response.ok:
         return False, response.json()
-    
+
     status = response.json()["status"]
     if status == "success":
         return True, {"message": "Login Successful"}
     elif status == "failure":
-        return False, {"status": "Login failed"}
+        return False, response.json()
