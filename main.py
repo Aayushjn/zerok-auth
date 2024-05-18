@@ -1,17 +1,12 @@
 # from zkg_client import client
 # from time import time
-
 # username = "ashutosh"
 # password = "mkc1"
-
 # client.configure_server("http://127.0.0.1:5000")
-
 # ok, response = client.register_user(username, password)
-
 # if not ok:
 #     print(response)
 #     exit(-1)
-
 # start = time()
 # ok, response = client.login(username, password)
 # end = time()
@@ -19,28 +14,30 @@
 # if not ok:
 #     print(response)
 #     exit(-1)
-
 # print(response)
-
 import tkinter as tk
+
 from zkg_client import client
-from time import time
 
 client.configure_server("http://127.0.0.1:5000")
+
 
 def hide_buttons():
     register_btn.pack_forget()
     login_btn.pack_forget()
+
 
 def switch_to_register():
     hide_buttons()
     clear_previous_contents()
     register_frame.place(relx=0.5, rely=0.5, anchor="center")
 
+
 def switch_to_login():
     hide_buttons()
     clear_previous_contents()
     login_frame.place(relx=0.5, rely=0.5, anchor="center")
+
 
 def clear_previous_contents():
     status_label_reg.config(text="")
@@ -49,6 +46,7 @@ def clear_previous_contents():
     status_label_login.config(text="")
     username_entry_login.delete(0, tk.END)
     password_entry_login.delete(0, tk.END)
+
 
 def register():
     global status_label_reg
@@ -74,9 +72,11 @@ def register():
         register_btn_reg.config(state=tk.NORMAL)
         back_btn_reg.config(state=tk.NORMAL)
 
+
 def enable_register_back_buttons():
     register_btn_reg.config(state=tk.NORMAL)
     back_btn_reg.config(state=tk.NORMAL)
+
 
 def login():
     global status_label_login
@@ -100,15 +100,18 @@ def login():
         login_btn_login.config(state=tk.NORMAL)
         back_btn_login.config(state=tk.NORMAL)
 
+
 def redirect_to_main_from_login(username):
     back_to_main_from_login()
     switch_to_main()
+
 
 def show_buttons():
     register_btn.config(state=tk.NORMAL)
     login_btn.config(state=tk.NORMAL)
     register_btn.place(relx=0.5, rely=0.5, anchor="center")
     login_btn.place(relx=0.5, rely=0.6, anchor="center")
+
 
 def back_to_main():
     show_buttons()
@@ -117,6 +120,7 @@ def back_to_main():
     clear_previous_contents()
     register_btn_reg.config(state=tk.NORMAL)
     back_btn_reg.config(state=tk.NORMAL)
+
 
 # Function to handle back button press in the login page
 def back_to_main_from_login():
@@ -128,10 +132,12 @@ def back_to_main_from_login():
     login_btn_login.config(state=tk.NORMAL)
     back_btn_login.config(state=tk.NORMAL)
 
+
 def switch_to_main():
     hide_buttons()
     clear_previous_contents()
     show_buttons()
+
 
 root = tk.Tk()
 root.title("Client Interface")  # Set title bar
@@ -143,7 +149,7 @@ show_buttons()
 
 # Register Frame
 register_frame = tk.Frame(root)
-tk.Label(register_frame, text="Register", font=('Helvetica', 18)).pack(pady=10)
+tk.Label(register_frame, text="Register", font=("Helvetica", 18)).pack(pady=10)
 tk.Label(register_frame, text="Username:").pack()
 username_entry_reg = tk.Entry(register_frame)
 username_entry_reg.pack()
@@ -159,7 +165,7 @@ status_label_reg.pack()
 
 # Login Frame
 login_frame = tk.Frame(root)
-tk.Label(login_frame, text="Login", font=('Helvetica', 18)).pack(pady=10)
+tk.Label(login_frame, text="Login", font=("Helvetica", 18)).pack(pady=10)
 tk.Label(login_frame, text="Username:").pack()
 username_entry_login = tk.Entry(login_frame)
 username_entry_login.pack()

@@ -1,4 +1,6 @@
+import json
 import random
+from base64 import b64encode
 from copy import deepcopy
 from typing import Any
 
@@ -8,8 +10,6 @@ from .crypto import hash_and_encode_data
 from .graph import generator as graph_generator
 from .graph import graph
 from .graph import isomorphism
-from base64 import b64encode
-import json
 
 _server_config = {}
 
@@ -39,8 +39,12 @@ def register_user(username: str, password: str) -> tuple[bool, dict[str, Any]]:
     adj_dict_g2 = graph.get_adjacency_list(g2)
 
     response = requests.post(
-        url=f"{_server_config['url']}/register", 
-        json={"username": username, "G1": pre_format_dict(adj_dict_g1), "G2": pre_format_dict(adj_dict_g2)},
+        url=f"{_server_config['url']}/register",
+        json={
+            "username": username,
+            "G1": pre_format_dict(adj_dict_g1),
+            "G2": pre_format_dict(adj_dict_g2),
+        },
     )
 
     return response.ok, response.json()
@@ -55,7 +59,7 @@ def login(username: str, password: str) -> tuple[bool, dict[str, Any]]:
 
     autgrp = isomorphism.get_automorphism_group(g1)
     g2_vertex_seq = autgrp[-1]
-    
+
     pi = graph.get_mapping(g1, g2_vertex_seq)
     g2 = isomorphism.apply_isomorphic_mapping(g1, pi)
     pi_inverse = graph.get_mapping(g2, list(g1.nodes))
@@ -69,9 +73,9 @@ def login(username: str, password: str) -> tuple[bool, dict[str, Any]]:
         if a == 1:
             epsilon = graph.get_mapping(g1, iso)
             h = isomorphism.apply_isomorphic_mapping(g1, epsilon)
-            
+
             epsilon_inverse = {v: k for k, v in epsilon.items()}
-            
+
         else:
             epsilon = graph.get_mapping(g2, iso)
             h = isomorphism.apply_isomorphic_mapping(g2, epsilon)
@@ -79,7 +83,10 @@ def login(username: str, password: str) -> tuple[bool, dict[str, Any]]:
 
         response = requests.post(
             url=f"{_server_config['url']}/login",
-            json={"username": username, "h": pre_format_dict(graph.get_adjacency_list(h))},
+            json={
+                "username": username,
+                "h": pre_format_dict(graph.get_adjacency_list(h)),
+            },
         )
         if not response.ok:
             return False, response.json()
@@ -110,11 +117,7 @@ def login(username: str, password: str) -> tuple[bool, dict[str, Any]]:
 
         status = response.json()["status"]
         if status == "success":
-            return True, {"message" : "Login Successful"}
+            return True, {"message": "Login Successful"}
         elif status == "failure":
             return False, response.json()
         round_num += 1
-
-
-# configure_server("http://127.0.0.1:5000")
-# login("admin", "admin")
