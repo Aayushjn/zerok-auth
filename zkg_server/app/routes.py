@@ -1,5 +1,5 @@
 import json
-import random
+import random, os, argon2
 from base64 import b64decode
 from collections import Counter
 
@@ -10,6 +10,7 @@ from . import cache
 from . import db
 from .graph import graph
 
+ph = argon2.PasswordHasher()
 
 def format_dict_payload(s: str, parse_int_keys: bool = True) -> dict:
     d = json.loads(b64decode(s).decode())
@@ -54,6 +55,32 @@ def register():
         return {"message": "Registration Successful"}, 200
 
 
+@app.route("/register_traditional", methods=["POST"])
+def register_traditional():
+    payload = request.get_json()
+    collection = db["user_data_traditional"]
+
+    if collection.find_one({"username": payload["username"]}) is not None:
+        # print(collection.find_one({"username": payload["username"]}))
+        return {"message": "Username already registered"}, 400
+    
+    pw_salt = os.urandom(16)
+    print("obtained salt = {}".format(pw_salt))
+    hashed_pw = ph.hash(password= payload["password"], salt= pw_salt)
+
+    print("hashed passwd - {}".format(hashed_pw))
+
+    db_data = {
+        "username": payload["username"],
+        "password": hashed_pw,
+        "salt": pw_salt,
+    }
+    result = collection.insert_one(db_data)
+    if not result.inserted_id:
+        return {"message": "Failed to register user"}, 500
+    else:
+        return {"message": "Registration Successful"}, 200
+
 @app.route("/login", methods=["POST"])
 def login():
     payload = request.get_json()
@@ -62,13 +89,41 @@ def login():
     user = collection.find_one({"username": payload["username"]})
 
     if user is None:
-        return {"message": f"Username {payload['username']} not found"}, 404
+        return {"status": f"Username {payload['username']} not found"}, 404
 
     b = random.randint(1, 2)
     h = format_dict_payload(payload["h"])
     cache.update(payload["username"], h, b)
 
     return {"b": b}, 200
+
+@app.route("/login_traditional", methods=["POST"])
+def login_traditional():
+    payload = request.get_json()
+    collection = db["user_data_traditional"]
+
+    user = collection.find_one({"username": payload["username"]})
+
+    if user is None:
+        return {"status": f"Username {payload['username']} not found"}, 404
+
+    stored_pw = user["password"]
+    stored_salt = user["salt"]
+    print("recovered salt = {}".format(stored_salt))
+    hashed_pw = ph.hash(password= payload["password"], salt= stored_salt)
+    print("recovered pw - {}".format(hashed_pw))
+    try:
+        result = ph.verify(hash= hashed_pw, password= stored_pw)
+        if result:
+            return {"status": "success"}, 200
+    except argon2.exceptions.VerifyMismatchError:
+        print("Passwords do not match")
+        return {"status": "failure"}, 200
+    except argon2.exceptions.VerificationError:
+        print('verification error')
+    except argon2.exceptions.InvalidHashError:
+        print('invalid hash error')
+
 
 
 @app.route("/verify", methods=["POST"])
@@ -79,7 +134,7 @@ def verify():
     user = collection.find_one({"username": payload["username"]})
 
     if user is None:
-        return {"message": f"{payload['username']} not found"}, 404
+        return {"status": f"{payload['username']} not found"}, 404
 
     user_cache = cache.get(payload["username"])
     h = graph.build_graph(user_cache["h"])

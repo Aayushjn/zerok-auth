@@ -61,7 +61,8 @@ def register():
     register_btn_reg.config(state=tk.DISABLED)
     back_btn_reg.config(state=tk.DISABLED)
 
-    ok, response = client.register_user(username, password)
+    # ok, response = client.register_user(username, password)
+    ok, response = client.register_user_traditional(username, password)
     if ok:
         status_label_reg.config(text=response["message"], fg="green")
         root.after(1000, switch_to_login)
@@ -91,7 +92,8 @@ def login():
     login_btn_login.config(state=tk.DISABLED)
     back_btn_login.config(state=tk.DISABLED)
 
-    ok, response = client.login(username, password)
+    # ok, response = client.login(username, password)
+    ok, response = client.login_traditional(username, password)
     if ok:
         status_label_login.config(text=response["message"], fg="green")
         root.after(1000, lambda: redirect_to_main_from_login(username))
