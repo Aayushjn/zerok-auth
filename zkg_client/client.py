@@ -78,7 +78,7 @@ def login(username: str, password: str) -> tuple[bool, dict[str, Any]]:
 
     round_num = 1
     while True:
-        print(f"Initiating round {round_num}")
+        # print(f"Initiating round {round_num}")
 
         a = random.randint(1, 2)
         iso = random.choice(autgrp)

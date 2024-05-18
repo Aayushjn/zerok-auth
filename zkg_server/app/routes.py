@@ -71,7 +71,6 @@ def register_traditional():
     db_data = {
         "username": payload["username"],
         "password": hashed_pw,
-        "salt": salt,
     }
     result = collection.insert_one(db_data)
     if not result.inserted_id:
@@ -133,7 +132,8 @@ def verify():
     user = collection.find_one({"username": payload["username"]})
 
     if user is None:
-        return {"status": f"{payload['username']} not found"}, 404
+        return {"status": "failure",
+                "message": f"{payload['username']} not found"}, 404
 
     user_cache = cache.get(payload["username"])
     h = graph.build_graph(user_cache["h"])
@@ -163,4 +163,5 @@ def verify():
         return {"status": status}, 200
     else:
         cache.delete(payload["username"])
-        return {"status": "Login failed"}, 401
+        return {"status": "failure",
+                "message": "Login failed"}, 401
