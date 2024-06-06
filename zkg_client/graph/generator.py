@@ -77,6 +77,6 @@ def generate_graph_degree(encoded_data: bytes, degree: int = 16) -> nx.Graph:
         if temp_degree == 0:
             temp_degree = degree // 2
         else:
-            degree -= 1
+            temp_degree -= 1
 
     return nx.relabel_nodes(g, mapping, copy=True)
