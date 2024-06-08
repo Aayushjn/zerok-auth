@@ -1,33 +1,18 @@
 from graphiso.graphiso import GraphIsomorphism
-from problem import Problem
+from zkframework import ZKFramework
 
-class ZKFramework:
-    def __init__(self, hardproblem: Problem) -> None:
-        self.hardproblem = hardproblem
+class Client:
+    def __init__(self) -> None:
+        self.zk_framework = ZKFramework()
 
-    def register_user(self, username: str, password: str):
+    def user_registration(self, username: str, password: str):
+        params = self.zk_framework.register_user(username, password)
 
-        (adj_G1, adj_G2) = self.hardproblem.derive_registration_parameters(username, password)
+        # TODO:need to send the above received params and username to the server
 
-    
+    def user_login(self, username: str, password: str):
+        login_params = self.zk_framework.authenticate_user(username, password)
 
-
-
-
-
-
-if __name__ == '__main__':
-
-    # initialize the Zero Knowledge Framework
-
-    hardproblem = GraphIsomorphism()
-    zk_framework = ZKFramework(hardproblem)
-
-    # user registration - accept username and password from user
-    username = 'adwaitgondhalekar'
-    password = 'kihjbuiergf883494'
-
-    # derive parameters from credentials and store them
-    zk_framework.register_user(username, password)
-
-    # user authentication
+        # TODO: need to send the above received login_params to the server for saving to DB
+        # TODO: receive challenges from the server for the sent login_params
+        # TODO: send response to the server for the received challenges
