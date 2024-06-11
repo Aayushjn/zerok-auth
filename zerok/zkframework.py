@@ -1,4 +1,4 @@
-from graphiso.graphiso import GraphIsomorphism
+from .graphiso.graphiso import GraphIsomorphism
 
 
 class ZKFramework:

@@ -1,5 +1,5 @@
 import tkinter as tk
-from client import Client
+from zerok.client.client import Client
 
 client = Client()
 
