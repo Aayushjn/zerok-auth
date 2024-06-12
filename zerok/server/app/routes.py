@@ -9,6 +9,7 @@ from flask import request
 
 from . import app
 from . import db
+
 # from . import cache
 
 # from .graph import graph
