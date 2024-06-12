@@ -8,8 +8,9 @@ import argon2
 from flask import request
 
 from . import app
-# from . import cache
 from . import db
+# from . import cache
+
 # from .graph import graph
 
 ph = argon2.PasswordHasher()
@@ -51,10 +52,12 @@ def register():
     #     "G2": format_dict_payload(payload["G2"], False),
     # }
 
-    db_data = {"username": payload["username"],
-               "parameters": {},}
-    
-    for k,v in payload["parameters"].items():
+    db_data = {
+        "username": payload["username"],
+        "parameters": {},
+    }
+
+    for k, v in payload["parameters"].items():
         db_data["parameters"][k] = format_dict_payload(v, False)
 
     result = collection.insert_one(db_data)
@@ -139,8 +142,7 @@ def verify():
     user = collection.find_one({"username": payload["username"]})
 
     if user is None:
-        return {"status": "failure",
-                "message": f"{payload['username']} not found"}, 404
+        return {"status": "failure", "message": f"{payload['username']} not found"}, 404
 
     user_cache = cache.get(payload["username"])
     h = graph.build_graph(user_cache["h"])
@@ -170,5 +172,4 @@ def verify():
         return {"status": status}, 200
     else:
         cache.delete(payload["username"])
-        return {"status": "failure",
-                "message": "Login failed"}, 401
+        return {"status": "failure", "message": "Login failed"}, 401

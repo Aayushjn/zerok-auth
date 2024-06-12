@@ -1,18 +1,21 @@
 import random
-from typing import Any, Iterable
+from typing import Any
+from typing import Iterable
 
 from ..problem import Problem
 from .credentials import hash_and_encode_data
 from .generator import generate_graph_degree
-from .isomorphism import get_automorphism_group
-from .isomorphism import apply_isomorphic_mapping
 from .graph import get_adjacency_list
 from .graph import get_mapping
+from .isomorphism import apply_isomorphic_mapping
+from .isomorphism import get_automorphism_group
 
 
 class GraphIsomorphism(Problem):
 
-    def derive_registration_parameters(self, username: str, password: str, **kwargs) -> Iterable[Any]:
+    def derive_registration_parameters(
+        self, username: str, password: str, **kwargs
+    ) -> Iterable[Any]:
         encoded = hash_and_encode_data(username) + hash_and_encode_data(password)
         g1 = generate_graph_degree(encoded)
         adj_dict_g1 = get_adjacency_list(g1)
@@ -25,7 +28,9 @@ class GraphIsomorphism(Problem):
 
         return adj_dict_g1, adj_dict_g2
 
-    def derive_auth_parameters(self, username: str, password: str, **kwargs) -> Iterable[Any]:
+    def derive_auth_parameters(
+        self, username: str, password: str, **kwargs
+    ) -> Iterable[Any]:
         rounds = kwargs.pop("rounds", 1)
 
         encoded = hash_and_encode_data(username) + hash_and_encode_data(password)
