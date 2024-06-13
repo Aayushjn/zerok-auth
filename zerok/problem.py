@@ -10,6 +10,10 @@ class Problem(ABC):
         self, username: str, password: str, **kwargs
     ) -> Iterable[Any]:
         pass
+    
+    @abstractmethod
+    def register_user()-> Iterable[Any]:
+        pass
 
     @abstractmethod
     def derive_auth_parameters(

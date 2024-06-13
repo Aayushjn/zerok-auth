@@ -2,11 +2,11 @@ import tkinter as tk
 
 from zerok.client import ZKClient
 from zerok.graphiso import GraphIsomorphism
+from shared import problem
 
-problem = GraphIsomorphism()
+# problem = GraphIsomorphism()
 server_url = "http://127.0.0.1:5000"
 client = ZKClient(problem=problem, server_url=server_url)
-
 
 def hide_buttons():
     register_btn.pack_forget()

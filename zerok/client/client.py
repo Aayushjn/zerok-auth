@@ -4,11 +4,7 @@ from base64 import b64encode
 import requests
 
 from ..problem import Problem
-
-
-def pre_format_dict(d: dict) -> str:
-    return b64encode(json.dumps(d).encode()).decode()
-
+from ..graphiso import util
 
 class ZKClient:
     problem: Problem
@@ -24,7 +20,7 @@ class ZKClient:
         parameters = {
             "username": username,
             "parameters": {
-                f"B{i}": pre_format_dict(param) for i, param in enumerate(reg_params)
+                f"B{i}": util.pre_format_dict(param) for i, param in enumerate(reg_params)
             },
         }
 
