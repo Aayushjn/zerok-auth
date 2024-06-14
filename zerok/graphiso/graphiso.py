@@ -2,7 +2,6 @@ import random
 from typing import Any
 from typing import Iterable
 
-
 from ..problem import Problem
 from .credentials import hash_and_encode_data
 from .generator import generate_graph_degree
@@ -10,7 +9,6 @@ from .graph import get_adjacency_list
 from .graph import get_mapping
 from .isomorphism import apply_isomorphic_mapping
 from .isomorphism import get_automorphism_group
-from .util import format_dict_payload
 
 
 class GraphIsomorphism(Problem):
@@ -29,34 +27,6 @@ class GraphIsomorphism(Problem):
         adj_dict_g2 = get_adjacency_list(g2)
 
         return adj_dict_g1, adj_dict_g2
-
-    def register_user(self, user_data, db) -> Iterable[Any]:
-
-        
-        collection = db["user_data"]
-
-        if collection.find_one({"username": user_data["username"]}) is not None:
-            return {"message": "Username already registered"}, 400
-
-        # db_data = {
-        #     "username": user_data["username"],
-        #     "G1": format_dict_user_data(user_data["G1"], False),
-        #     "G2": format_dict_user_data(user_data["G2"], False),
-        # }
-
-        db_data = {
-            "username": user_data["username"],
-            "parameters": {},
-        }
-
-        for k, v in user_data["parameters"].items():
-            db_data["parameters"][k] = format_dict_payload(v, False)
-
-        result = collection.insert_one(db_data)
-        if not result.inserted_id:
-            return {"message": "Failed to register user"}, 500
-        else:
-            return {"message": "Registration Successful"}, 200
 
     def derive_auth_parameters(
         self, username: str, password: str, **kwargs

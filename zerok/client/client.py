@@ -1,10 +1,8 @@
-import json
-from base64 import b64encode
-
 import requests
 
+from .. import util
 from ..problem import Problem
-from ..graphiso import util
+
 
 class ZKClient:
     problem: Problem
@@ -20,7 +18,8 @@ class ZKClient:
         parameters = {
             "username": username,
             "parameters": {
-                f"B{i}": util.pre_format_dict(param) for i, param in enumerate(reg_params)
+                f"B{i}": util.pre_format_dict(param)
+                for i, param in enumerate(reg_params)
             },
         }
 
