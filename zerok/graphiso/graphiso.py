@@ -13,6 +13,12 @@ from .isomorphism import get_automorphism_group
 
 class GraphIsomorphism(Problem):
 
+    def __init__(self) -> None:
+        super().__init__()
+        self.batch_size = 5
+        self.rounds = 20
+        self.batch_params = {}
+
     def derive_registration_parameters(
         self, username: str, password: str, **kwargs
     ) -> Iterable[Any]:
@@ -31,10 +37,11 @@ class GraphIsomorphism(Problem):
     def derive_auth_parameters(
         self, username: str, password: str, **kwargs
     ) -> Iterable[Any]:
-        rounds = kwargs.pop("rounds", 1)
+        # rounds = kwargs.pop("rounds", 1)
 
         encoded = hash_and_encode_data(username) + hash_and_encode_data(password)
-        g1 = generate_graph_degree(encoded, rounds)
+        # g1 = generate_graph_degree(encoded, rounds)
+        g1 = generate_graph_degree(encoded, self.rounds)
         autgrp = get_automorphism_group(g1)
         g2_vertex_seq = autgrp[-1]
 
@@ -42,7 +49,7 @@ class GraphIsomorphism(Problem):
         g2 = apply_isomorphic_mapping(g1, pi)
 
         params = []
-        for _ in range(rounds):
+        for _ in range(self.rounds):
             a = random.randint(1, 2)
             iso = random.choice(autgrp)
             src_graph = g1 if a == 1 else g2
@@ -64,5 +71,16 @@ class GraphIsomorphism(Problem):
     def generate_response(self, challenge: Iterable[Any]) -> Iterable[Any]:
         pass
 
-    def generate_challenge(self) -> Iterable[Any]:
-        pass
+    def generate_challenge(self, parameters: Iterable[Any]) -> Iterable[Any]:
+
+        # batch params is a dict of dicts
+        # each dict has a key = round_number and value = adj dict of graph h
+        self.batch_params = parameters
+        batch_challenge = {}
+
+        for round in range(self.batch_size):
+            b = random.randint(1,2)
+            batch_challenge[round] = b
+
+        return batch_challenge
+

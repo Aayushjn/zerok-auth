@@ -31,8 +31,23 @@ class ZKClient:
         return response.ok, response.json()
 
     def user_login(self, username: str, password: str):
-        login_params = self.problem.derive_auth_parameters(username, password)
 
-        # TODO: need to send the above received login_params to the server for saving to DB
-        # TODO: receive challenges from the server for the sent login_params
-        # TODO: send response to the server for the received challenges
+        profile_exists = requests.post(
+            url=f"{self.server_url}/register",
+            json = {
+                "username": username
+            },
+        )
+
+        if not profile_exists.ok:
+            return profile_exists.ok, profile_exists.json()
+        else:
+
+            login_params = self.problem.derive_auth_parameters(username, password)
+
+            # TODO:A loop for sending the above received params batch wise to the server by calling /login endpoint
+            # for receiving the challenges for that batch
+
+
+            # TODO: receive challenges from the server for the sent login_params
+            # TODO: send response to the server for the received challenges

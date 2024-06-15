@@ -22,5 +22,5 @@ class Problem(ABC):
         pass
 
     @abstractmethod
-    def generate_challenge(self) -> Iterable[Any]:
+    def generate_challenge(self, batch_params: Iterable[Any]) -> Iterable[Any]:
         pass
