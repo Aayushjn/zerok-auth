@@ -1,6 +1,8 @@
 import random
+from copy import deepcopy
 from typing import Any
 from typing import Iterable
+from typing import Mapping
 
 from ..problem import Problem
 from .credentials import hash_and_encode_data
@@ -9,14 +11,14 @@ from .graph import get_adjacency_list
 from .graph import get_mapping
 from .isomorphism import apply_isomorphic_mapping
 from .isomorphism import get_automorphism_group
+from .isomorphism import get_isomorphic_mapping
 
 
 class GraphIsomorphism(Problem):
+    batch_params: dict
 
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
-        self.batch_size = 5
-        self.rounds = 20
         self.batch_params = {}
 
     def derive_registration_parameters(
@@ -36,20 +38,20 @@ class GraphIsomorphism(Problem):
 
     def derive_auth_parameters(
         self, username: str, password: str, **kwargs
-    ) -> Iterable[Any]:
-        # rounds = kwargs.pop("rounds", 1)
+    ) -> Mapping[str, Any]:
+        batch_size = kwargs.pop("batch_size", 1)
 
         encoded = hash_and_encode_data(username) + hash_and_encode_data(password)
-        # g1 = generate_graph_degree(encoded, rounds)
-        g1 = generate_graph_degree(encoded, self.rounds)
+        g1 = generate_graph_degree(encoded)
         autgrp = get_automorphism_group(g1)
         g2_vertex_seq = autgrp[-1]
 
         pi = get_mapping(g1, g2_vertex_seq)
         g2 = apply_isomorphic_mapping(g1, pi)
+        pi_inverse = get_mapping(g2, list(g1.nodes))
 
         params = []
-        for _ in range(self.rounds):
+        for _ in range(batch_size):
             a = random.randint(1, 2)
             iso = random.choice(autgrp)
             src_graph = g1 if a == 1 else g2
@@ -66,21 +68,42 @@ class GraphIsomorphism(Problem):
                 }
             )
 
-        return params
+        return {"params": params, "other_params": {"pi": pi, "pi_inverse": pi_inverse}}
 
-    def generate_response(self, challenge: Iterable[Any]) -> Iterable[Any]:
-        pass
+    def generate_responses(
+        self,
+        challenge: Iterable[Any],
+        auth_params: Iterable[Any],
+        other_params: Iterable[Any],
+    ) -> Iterable[Any]:
+        responses = []
+        for c, param in zip(challenge, auth_params):
+            if c == param["a"]:
+                chi = param["epsilon_inverse"]
+            elif param["a"] == 1 and c == 2:
+                inter_graph = apply_isomorphic_mapping(
+                    apply_isomorphic_mapping(
+                        deepcopy(param["h"]), param["epsilon_inverse"]
+                    ),
+                    other_params["pi"],
+                )
+                chi = get_isomorphic_mapping(param["h"], inter_graph)
+            else:
+                inter_graph = apply_isomorphic_mapping(
+                    apply_isomorphic_mapping(
+                        deepcopy(param["h"]), param["epsilon_inverse"]
+                    ),
+                    other_params["pi_inverse"],
+                )
+                chi = get_isomorphic_mapping(param["h"], inter_graph)
 
-    def generate_challenge(self, parameters: Iterable[Any]) -> Iterable[Any]:
+            responses.append(chi)
 
+        return responses
+
+    def generate_challenge(self, parameters: Iterable[Any], **kwargs) -> Iterable[Any]:
         # batch params is a dict of dicts
         # each dict has a key = round_number and value = adj dict of graph h
+        batch_size = kwargs.pop("batch_size", 1)
         self.batch_params = parameters
-        batch_challenge = {}
-
-        for round in range(self.batch_size):
-            b = random.randint(1,2)
-            batch_challenge[round] = b
-
-        return batch_challenge
-
+        return [random.randint(1, 2) for i in range(batch_size)]
