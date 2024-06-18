@@ -110,14 +110,14 @@ class ZKServer:
                         continue
                     else:
                         delete(payload["username"])
-                    return {"status": "failure", "message": "Login failed"}, 401
+                        return {"status": "failure", "message": "Login failed"}, 401
                 else:
                     g2_adj_list = {int(k): v for k, v in user["parameters"][1].items()}
                     if compare_adj_lists(remap_adj_list, g2_adj_list):
                         continue
                     else:
                         delete(payload["username"])
-                    return {"status": "failure", "message": "Login failed"}, 401
+                        return {"status": "failure", "message": "Login failed"}, 401
             
             delete(payload["username"])
             return {"status": "success"}, 200
