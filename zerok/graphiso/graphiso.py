@@ -1,4 +1,5 @@
 import random
+import networkx as nx
 from copy import deepcopy
 from typing import Any
 from typing import Iterable
@@ -12,6 +13,7 @@ from .graph import get_mapping
 from .isomorphism import apply_isomorphic_mapping
 from .isomorphism import get_automorphism_group
 from .isomorphism import get_isomorphic_mapping
+from ..util import format_dict_payload
 
 
 class GraphIsomorphism(Problem):
@@ -39,8 +41,7 @@ class GraphIsomorphism(Problem):
     def derive_auth_parameters(
         self, username: str, password: str, **kwargs
     ) -> Mapping[str, Any]:
-        batch_size = kwargs.pop("batch_size", 1)
-
+        total_rounds = kwargs["total_rounds"]
         encoded = hash_and_encode_data(username) + hash_and_encode_data(password)
         g1 = generate_graph_degree(encoded)
         autgrp = get_automorphism_group(g1)
@@ -51,7 +52,7 @@ class GraphIsomorphism(Problem):
         pi_inverse = get_mapping(g2, list(g1.nodes))
 
         params = []
-        for _ in range(batch_size):
+        for _ in range(total_rounds):
             a = random.randint(1, 2)
             iso = random.choice(autgrp)
             src_graph = g1 if a == 1 else g2
@@ -83,27 +84,27 @@ class GraphIsomorphism(Problem):
             elif param["a"] == 1 and c == 2:
                 inter_graph = apply_isomorphic_mapping(
                     apply_isomorphic_mapping(
-                        deepcopy(param["h"]), param["epsilon_inverse"]
+                        deepcopy(nx.from_dict_of_lists(param["h"])), param["epsilon_inverse"]
                     ),
                     other_params["pi"],
                 )
-                chi = get_isomorphic_mapping(param["h"], inter_graph)
+                chi = get_isomorphic_mapping(nx.from_dict_of_lists(param["h"]), inter_graph)
             else:
                 inter_graph = apply_isomorphic_mapping(
                     apply_isomorphic_mapping(
-                        deepcopy(param["h"]), param["epsilon_inverse"]
+                        deepcopy(nx.from_dict_of_lists(param["h"])), param["epsilon_inverse"]
                     ),
                     other_params["pi_inverse"],
                 )
-                chi = get_isomorphic_mapping(param["h"], inter_graph)
+                chi = get_isomorphic_mapping(nx.from_dict_of_lists(param["h"]), inter_graph)
 
             responses.append(chi)
 
         return responses
 
-    def generate_challenge(self, parameters: Iterable[Any], **kwargs) -> Iterable[Any]:
-        # batch params is a dict of dicts
-        # each dict has a key = round_number and value = adj dict of graph h
+    def generate_challenge(self, **kwargs) -> Iterable[Any]:
+        
         batch_size = kwargs.pop("batch_size", 1)
-        self.batch_params = parameters
-        return [random.randint(1, 2) for i in range(batch_size)]
+        batch_challenge = [random.randint(1, 2) for i in range(batch_size)]
+        
+        return batch_challenge

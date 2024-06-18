@@ -7,3 +7,6 @@ def get_adjacency_list(g: nx.Graph) -> dict[int, list[int]]:
 
 def get_mapping(g: nx.Graph, remapped_nodes: list[int]) -> dict[int, int]:
     return dict(zip(g.nodes, remapped_nodes))
+
+def apply_isomorphic_mapping(g: nx.Graph, mapping: dict[int, int]):
+    return nx.relabel_nodes(g, mapping, copy=True)
