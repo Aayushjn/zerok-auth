@@ -14,4 +14,4 @@ def apply_isomorphic_mapping(g: nx.Graph, mapping: dict[int, int]):
 
 
 def from_adjacency_list(adj_list: dict[int, list[int]]) -> nx.Graph:
-    return nx.from_dict_of_lists(adj_list)
+    return nx.from_dict_of_lists(adj_list, create_using=nx.MultiGraph)

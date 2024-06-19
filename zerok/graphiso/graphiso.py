@@ -94,7 +94,7 @@ class GraphIsomorphism(Problem):
         return [random.randint(1, 2) for _ in range(batch_size)]
 
     def verify(
-        self, params: Iterable[Any], responses: Iterable[Any], challenges: Iterable[int], user_params: Iterable[Any]
+        self, params: Iterable[Any], responses: Iterable[Any], challenges: Iterable[int], user_params: Mapping[Any, Any]
     ) -> bool:
         for param, r, c in zip(params, responses, challenges):
             h = graph.from_adjacency_list(param)
@@ -104,11 +104,11 @@ class GraphIsomorphism(Problem):
 
             if c == 1:
                 g1_adj_list = {int(k): v for k, v in user_params[0].items()}
-                if not util.compare_adj_lists(remap_adj_list, g1_adj_list):
+                if not isomorphism.is_isomorphic(remapped_graph, graph.from_adjacency_list(g1_adj_list)):
                     return False
             else:
                 g2_adj_list = {int(k): v for k, v in user_params[1].items()}
-                if not util.compare_adj_lists(remap_adj_list, g2_adj_list):
+                if not isomorphism.is_isomorphic(remapped_graph, graph.from_adjacency_list(g2_adj_list)):
                     return False
 
         return True

@@ -34,6 +34,6 @@ class Problem(ABC):
 
     @abstractmethod
     def verify(
-        self, params: Iterable[Any], responses: Iterable[Any], challenges: Iterable[int], user_params: Iterable[Any]
+        self, params: Iterable[Any], responses: Iterable[Any], challenges: Iterable[int], user_params: Mapping[Any, Any]
     ) -> bool:
         pass

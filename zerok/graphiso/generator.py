@@ -56,7 +56,7 @@ def generate_graph_degree(encoded_data: bytes, degree: int = 16) -> nx.Graph:
     mapping = {}
 
     mapping_idx = 0
-    g = nx.Graph()
+    g = nx.MultiGraph()
     temp_degree = degree
     for i in range(encoded_len):
         cur_node = encoded_data[i]
