@@ -1,4 +1,4 @@
-'''
+"""
 from zkg_client import client
 from time import time
 import statistics as s
@@ -106,8 +106,7 @@ plt.ylabel("Time taken in seconds", fontsize = 13)
 plt.title("Time taken for unsuccessful Authentication", fontsize = 15)
 plt.savefig("incorrect_auth.png")
 # plt.show()
-'''
-
+"""
 
 import tkinter as tk
 
@@ -186,10 +185,9 @@ def login():
     login_btn_login.config(state=tk.DISABLED)
     back_btn_login.config(state=tk.DISABLED)
 
-    
     ok, response = client.login(username, password)
     # ok, response = client.login_traditional(username, password)
-    
+
     if ok:
         status_label_login.config(text=response["message"], fg="green")
         root.after(1000, lambda: redirect_to_main_from_login(username))

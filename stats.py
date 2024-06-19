@@ -19,8 +19,7 @@ print(f"Testing {SAMPLE_SIZE} users...")
 print("Generating credentials...")
 start = time.perf_counter()
 credentials = [
-    hash_and_encode_data(fake.email()) + hash_and_encode_data(fake.password(length=16))
-    for _ in range(SAMPLE_SIZE)
+    hash_and_encode_data(fake.email()) + hash_and_encode_data(fake.password(length=16)) for _ in range(SAMPLE_SIZE)
 ]
 end = time.perf_counter()
 print(f"Generating credentials took {timedelta(seconds=end - start)}")
