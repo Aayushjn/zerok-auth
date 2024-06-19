@@ -14,9 +14,7 @@ def pre_format_dict(d: dict) -> str:
     return b64encode(json.dumps(d).encode()).decode()
 
 
-def compare_adj_lists(
-    adj_list1: dict[int, list[int]], adj_list2: dict[int, list[int]]
-) -> bool:
+def compare_adj_lists(adj_list1: dict[int, list[int]], adj_list2: dict[int, list[int]]) -> bool:
     def _compare_list(l1: list[int], l2: list[int]) -> bool:
         return Counter(l1) == Counter(l2)
 

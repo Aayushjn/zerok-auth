@@ -47,7 +47,7 @@ def register():
     register_btn_reg.config(state=tk.DISABLED)
     back_btn_reg.config(state=tk.DISABLED)
 
-    ok, response = client.user_registration(username, password)
+    ok, response = client.register_user(username, password)
 
     if ok:
         status_label_reg.config(text=response["message"], fg="green")
@@ -78,7 +78,7 @@ def login():
     login_btn_login.config(state=tk.DISABLED)
     back_btn_login.config(state=tk.DISABLED)
 
-    ok, response = client.user_login(username, password)
+    ok, response = client.login_user(username, password)
 
     if ok:
         status_label_login.config(text=response["message"], fg="green")

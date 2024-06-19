@@ -1,11 +1,10 @@
 from flask import Flask
 from flask import request
-import networkx as nx
+
+from . import cache
 from ..problem import Problem
-from ..util import format_dict_payload, compare_adj_lists
+from ..util import format_dict_payload
 from .dbconnect import Connection
-from .cache import update, get, delete
-from ..graphiso import graph
 
 
 class ZKServer:
@@ -38,9 +37,7 @@ class ZKServer:
 
             db_data = {
                 "username": payload["username"],
-                "parameters": [
-                    format_dict_payload(param, False) for param in payload["parameters"]
-                ],
+                "parameters": [format_dict_payload(param, False) for param in payload["parameters"]],
             }
 
             result = collection.insert_one(db_data)
@@ -51,7 +48,6 @@ class ZKServer:
 
         @self.app.route("/login", methods=["POST"])
         def login():
-
             payload = request.get_json()
 
             collection = self.db["user_data"]
@@ -61,23 +57,16 @@ class ZKServer:
 
             if user is None:
                 return {
-                    "status": "failure",
                     "message": f"Username {payload['username']} not found",
                 }, 404
 
-            batch_no = payload["batch_no"]
-            batch_params = [
-                format_dict_payload(str_adj_dict)
-                for str_adj_dict in payload["parameters"]
-            ]
-            batch_challenge = self.problem.generate_challenge(
-                batch_size=self.app.config["BATCH_SIZE"]
-            )
-            update(payload["username"], batch_no, batch_params, batch_challenge)
+            batch = payload["batch"]
+            params = [format_dict_payload(str_adj_dict) for str_adj_dict in payload["parameters"]]
+            challenges = self.problem.generate_challenges(batch_size=self.app.config["BATCH_SIZE"])
+            cache.update(payload["username"], batch, params, challenges)
 
             return {
-                "status": "success",
-                "challenges": batch_challenge,
+                "challenges": challenges,
             }, 200
 
         @self.app.route("/verify", methods=["POST"])
@@ -93,34 +82,22 @@ class ZKServer:
                     "message": f"{payload['username']} not found",
                 }, 404
 
-            user_cache = get(payload["username"])
-            batch_params = user_cache["batch_params"]
-            batch_challenge = user_cache["batch_challenge"]
-            batch_response = payload["responses"]
+            user_cache = cache.get(payload["username"])
+            params = user_cache["params"]
+            challenges = user_cache["challenges"]
+            responses = payload["responses"]
+            if len(responses) != len(challenges):
+                return {
+                    "status": "failure",
+                    "message": "Illegal batch size",
+                }, 400
 
-            for i in range(self.app.config["BATCH_SIZE"]):
-                h = nx.from_dict_of_lists(batch_params[i])
-                chi = format_dict_payload(batch_response[i])
-                remapped_graph = graph.apply_isomorphic_mapping(h, chi)
-                remap_adj_list = graph.get_adjacency_list(remapped_graph)
-
-                if batch_challenge[i] == 1:
-                    g1_adj_list = {int(k): v for k, v in user["parameters"][0].items()}
-                    if compare_adj_lists(remap_adj_list, g1_adj_list):
-                        continue
-                    else:
-                        delete(payload["username"])
-                        return {"status": "failure", "message": "Login failed"}, 401
-                else:
-                    g2_adj_list = {int(k): v for k, v in user["parameters"][1].items()}
-                    if compare_adj_lists(remap_adj_list, g2_adj_list):
-                        continue
-                    else:
-                        delete(payload["username"])
-                        return {"status": "failure", "message": "Login failed"}, 401
-            
-            delete(payload["username"])
-            return {"status": "success"}, 200
+            passed = self.problem.verify(params, responses, challenges, user["parameters"])
+            cache.delete(payload["username"])
+            if passed:
+                return {"status": "success"}, 200
+            else:
+                return {"status": "failure", "message": "Login failed"}, 401
 
     def run(self, host="127.0.0.1", port=5000, debug=True):
         self.app.run(host=host, port=port, debug=debug)
