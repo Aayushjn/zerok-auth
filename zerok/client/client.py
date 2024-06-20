@@ -43,12 +43,13 @@ class ZKClient:
     def login_user(self, username: str, password: str):
         auth_params = self.problem.derive_auth_parameters(username, password, total_rounds=self.total_rounds)
 
-        for i in range(0, self.total_rounds, self.batch_size):
+        i = 0
+        while i < self.total_rounds:
             batch = (i // self.batch_size) + 1
             parameters = {
                 "username": username,
                 "parameters": [
-                    util.pre_format_dict(param["h"]) for param in auth_params["params"][i : (i + self.batch_size)]
+                    util.pre_format_dict(param["h"]) for param in auth_params["params"][i : i + self.batch_size]
                 ],
                 "batch": batch,
             }
@@ -61,7 +62,7 @@ class ZKClient:
 
             challenge_responses = self.problem.generate_responses(
                 challenges,
-                auth_params["params"][i : (i + self.batch_size)],
+                auth_params["params"][i : i + self.batch_size],
                 auth_params["other_params"],
             )
 
@@ -75,7 +76,7 @@ class ZKClient:
 
             if not response.ok:
                 return response.ok, response.json()
-            else:
-                print(f"Batch {batch} completed successfully")
+
+            i += self.batch_size
 
         return 200, {"message": "Login Successful"}

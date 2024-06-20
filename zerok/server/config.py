@@ -1,2 +1,0 @@
-ROUNDS = 20
-BATCH_SIZE = 10
