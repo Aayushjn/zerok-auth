@@ -9,7 +9,7 @@ from zerok.graphiso import GraphIsomorphism
 
 fake = Faker()
 problem = GraphIsomorphism()
-server_url = "http://127.0.0.1:5000"
+server_url = "http://10.0.0.2:5000"
 client = ZKClient(problem=problem, server_url=server_url)
 
 
@@ -23,9 +23,9 @@ def traditional_flow():
 
     resp = requests.post(
         f"{server_url}/login_traditional",
-        json={"username": username, "password": password},
+        json={"username": username, "password": f"{password}wrong"},
     )
-    resp.raise_for_status()
+    # resp.raise_for_status()
 
 
 def zk_flow():
@@ -34,9 +34,9 @@ def zk_flow():
     if not ok:
         print(resp)
         return
-    ok, resp = client.login_user(username, password)
-    if not ok:
-        print(resp)
+    ok, resp = client.login_user(username, f"{password}wrong")
+    # if not ok:
+    #     print(resp)
 
 
 print(timeit(traditional_flow, number=100), "ms")

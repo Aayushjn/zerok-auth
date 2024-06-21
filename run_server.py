@@ -6,4 +6,4 @@ from zerok.server import ZKServer
 
 load_dotenv(find_dotenv())
 server = ZKServer(problem=problem)
-server.run()
+server.run("10.0.0.2")
