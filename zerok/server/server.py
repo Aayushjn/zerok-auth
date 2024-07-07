@@ -75,7 +75,7 @@ class ZKServer:
                 argon2.exceptions.VerificationError,
                 argon2.exceptions.InvalidHashError,
             ) as e:
-                return {"status": "failure", "message": str(e)}, 500
+                return {"status": "failure", "message": str(e)}, 401
 
     def setup_routes(self):
 
