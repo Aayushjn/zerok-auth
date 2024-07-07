@@ -1,3 +1,0 @@
-networkx==3.3
-pynauty==2.8.6
-requests==2.31.0
